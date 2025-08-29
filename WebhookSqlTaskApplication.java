@@ -29,7 +29,7 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
         // Step 1: Call generateWebhook
         String url = "https://bfhldevapigw.healthrx.co.in/hiring/generateWebhook/JAVA";
         Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("name", Hemasree Gogudpalem);
+        requestBody.put("name", Hemasree Gogudupalem);
         requestBody.put("regNo", 22BCE9996);
         requestBody.put("email", hema.22bce9996@vitapstudent.ac.in);
 
@@ -40,12 +40,12 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
             String accessToken = response.get("accessToken");
 
             if (webhookUrl == null || accessToken == null) {
-                System.err.println("❌ Invalid response: missing webhook or accessToken");
+                System.err.println("Invalid response: missing webhook or accessToken");
                 return;
             }
 
-            System.out.println("✅ Webhook URL: " + webhookUrl);
-            System.out.println("✅ JWT Token: " + accessToken);
+            System.out.println(" Webhook URL: " + webhookUrl);
+            System.out.println("JWT Token: " + accessToken);
 
             // Step 2: Decide which question to solve
             String finalQuery = solveSqlProblem(REG_NO);
@@ -54,7 +54,7 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
             sendFinalQuery(webhookUrl, accessToken, finalQuery);
 
         } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -66,13 +66,13 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
             throw new IllegalArgumentException("Registration number must contain at least 2 digits.");
         }
         int lastTwoDigits = Integer.parseInt(digits.substring(digits.length() - 2));
-        System.out.println("🔢 Last two digits of regNo: " + lastTwoDigits);
+        System.out.println(" Last two digits of regNo: " + lastTwoDigits);
 
         if (lastTwoDigits % 2 == 1) {
-            System.out.println("🎯 Solving Question 1 (ODD)");
+            System.out.println(" Solving Question 1 (ODD)");
             return getQuestion1Solution();
         } else {
-            System.out.println("🎯 Solving Question 2 (EVEN)");
+            System.out.println(" Solving Question 2 (EVEN)");
             return getQuestion2Solution();
         }
     }
@@ -122,11 +122,12 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                 webhookUrl, HttpMethod.POST, entity, String.class);
-            System.out.println("🎉 SUCCESS! Response: " + response.getBody());
+            System.out.println("SUCCESS! Response: " + response.getBody());
         } catch (Exception e) {
-            System.err.println("❌ FAILED to send query: " + e.getMessage());
+            System.err.println(" FAILED to send query: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
 }
+
