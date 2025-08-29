@@ -1,0 +1,131 @@
+package com.example.webhooksqltask;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import java.util.HashMap;
+import java.util.Map;
+
+@SpringBootApplication
+public class WebhookSqlTaskApplication implements CommandLineRunner {
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    // ✅ UPDATE THESE VALUES
+    private static final String NAME = "Hemasree Gogudupalem";           // e.g., "Rahul Kumar"
+    private static final String REG_NO = "22BCE9996";             // e.g., "20BCE1234"
+    private static final String EMAIL = "hema.22bce9996@vitstudentap.ac.in"; // Your VIT email
+
+    public static void main(String[] args) {
+        SpringApplication.run(WebhookSqlTaskApplication.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("🚀 App started. Generating webhook...");
+
+        // Step 1: Call generateWebhook
+        String url = "https://bfhldevapigw.healthrx.co.in/hiring/generateWebhook/JAVA";
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("name", NAME);
+        requestBody.put("regNo", REG_NO);
+        requestBody.put("email", EMAIL);
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, String> response = restTemplate.postForObject(url, requestBody, Map.class);
+            String webhookUrl = response.get("webhook");
+            String accessToken = response.get("accessToken");
+
+            if (webhookUrl == null || accessToken == null) {
+                System.err.println("❌ Invalid response: missing webhook or accessToken");
+                return;
+            }
+
+            System.out.println("✅ Webhook URL: " + webhookUrl);
+            System.out.println("✅ JWT Token: " + accessToken);
+
+            // Step 2: Decide which question to solve
+            String finalQuery = solveSqlProblem(REG_NO);
+
+            // Step 3: Send final query to testWebhook
+            sendFinalQuery(webhookUrl, accessToken, finalQuery);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private String solveSqlProblem(String regNo) {
+        // Extract last two digits
+        String digits = regNo.replaceAll("\\D+", ""); // Keep only digits
+        if (digits.length() < 2) {
+            throw new IllegalArgumentException("Registration number must contain at least 2 digits.");
+        }
+        int lastTwoDigits = Integer.parseInt(digits.substring(digits.length() - 2));
+        System.out.println("🔢 Last two digits of regNo: " + lastTwoDigits);
+
+        if (lastTwoDigits % 2 == 1) {
+            System.out.println("🎯 Solving Question 1 (ODD)");
+            return getQuestion1Solution();
+        } else {
+            System.out.println("🎯 Solving Question 2 (EVEN)");
+            return getQuestion2Solution();
+        }
+    }
+
+    // ✅ SOLUTION FOR QUESTION 1: Highest salary NOT paid on 1st of month
+    private String getQuestion1Solution() {
+    return "SELECT \n" +
+           "  p.AMOUNT AS SALARY,\n" +
+           "  CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS NAME,\n" +
+           "  TIMESTAMPDIFF(YEAR, e.DOB, CURDATE()) AS AGE,\n" +
+           "  d.DEPARTMENT_NAME\n" +
+           "FROM PAYMENTS p\n" +
+           "JOIN EMPLOYEE e ON p.EMP_ID = e.EMP_ID\n" +
+           "JOIN DEPARTMENT d ON e.DEPARTMENT = d.DEPARTMENT_ID\n" +
+           "WHERE DAY(p.PAYMENT_TIME) <> 1\n" +
+           "ORDER BY p.AMOUNT DESC\n" +
+           "LIMIT 1;";
+}
+
+    // ✅ SOLUTION FOR QUESTION 2: Count of younger employees in same department
+    private String getQuestion2Solution() {
+    return "SELECT \n" +
+           "  e.EMP_ID,\n" +
+           "  e.FIRST_NAME,\n" +
+           "  e.LAST_NAME,\n" +
+           "  d.DEPARTMENT_NAME,\n" +
+           "  COUNT(y.EMP_ID) AS YOUNGER_EMPLOYEES_COUNT\n" +
+           "FROM EMPLOYEE e\n" +
+           "JOIN DEPARTMENT d ON e.DEPARTMENT = d.DEPARTMENT_ID\n" +
+           "LEFT JOIN EMPLOYEE y ON y.DEPARTMENT = e.DEPARTMENT\n" +
+           "  AND TIMESTAMPDIFF(YEAR, y.DOB, CURDATE()) < TIMESTAMPDIFF(YEAR, e.DOB, CURDATE())\n" +
+           "GROUP BY e.EMP_ID, e.FIRST_NAME, e.LAST_NAME, d.DEPARTMENT_NAME\n" +
+           "ORDER BY e.EMP_ID DESC;";
+}
+    private void sendFinalQuery(String webhookUrl, String accessToken, String finalQuery) {
+        // Prepare request body
+        Map<String, String> payload = new HashMap<>();
+        payload.put("finalQuery", finalQuery.trim());
+
+        // Set headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", accessToken); // No "Bearer" — just raw token
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                webhookUrl, HttpMethod.POST, entity, String.class);
+            System.out.println("🎉 SUCCESS! Response: " + response.getBody());
+        } catch (Exception e) {
+            System.err.println("❌ FAILED to send query: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
