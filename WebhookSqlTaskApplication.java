@@ -13,10 +13,10 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // ✅ UPDATE THESE VALUES
-    private static final String NAME = "Hemasree Gogudupalem";           // e.g., "Rahul Kumar"
-    private static final String REG_NO = "22BCE9996";             // e.g., "20BCE1234"
-    private static final String EMAIL = "hema.22bce9996@vitstudentap.ac.in"; // Your VIT email
+    
+    private static final String NAME = "Hemasree Gogudupalem";           
+    private static final String REG_NO = "22BCE9996";             
+    private static final String EMAIL = "hema.22bce9996@vitstudentap.ac.in"; 
 
     public static void main(String[] args) {
         SpringApplication.run(WebhookSqlTaskApplication.class, args);
@@ -29,9 +29,9 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
         // Step 1: Call generateWebhook
         String url = "https://bfhldevapigw.healthrx.co.in/hiring/generateWebhook/JAVA";
         Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("name", NAME);
-        requestBody.put("regNo", REG_NO);
-        requestBody.put("email", EMAIL);
+        requestBody.put("name", Hemasree Gogudpalem);
+        requestBody.put("regNo", 22BCE9996);
+        requestBody.put("email", hema.22bce9996@vitapstudent.ac.in);
 
         try {
             @SuppressWarnings("unchecked")
@@ -77,7 +77,7 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
         }
     }
 
-    // ✅ SOLUTION FOR QUESTION 1: Highest salary NOT paid on 1st of month
+    
     private String getQuestion1Solution() {
     return "SELECT \n" +
            "  p.AMOUNT AS SALARY,\n" +
@@ -92,7 +92,7 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
            "LIMIT 1;";
 }
 
-    // ✅ SOLUTION FOR QUESTION 2: Count of younger employees in same department
+
     private String getQuestion2Solution() {
     return "SELECT \n" +
            "  e.EMP_ID,\n" +
@@ -128,4 +128,5 @@ public class WebhookSqlTaskApplication implements CommandLineRunner {
             e.printStackTrace();
         }
     }
+
 }
